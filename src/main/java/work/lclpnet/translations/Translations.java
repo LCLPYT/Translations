@@ -6,6 +6,7 @@
 
 package work.lclpnet.translations;
 
+import work.lclpnet.translations.io.IAsyncTranslationLoader;
 import work.lclpnet.translations.io.ITranslationLoader;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class Translations {
 
@@ -41,8 +43,16 @@ public class Translations {
      */
     public static void loadFrom(ITranslationLoader loader) throws IOException {
         Map<String, Map<String, String>> loaded = loader.load();
-        if(loaded == null) return;
+        if(loaded != null) addLoaded(loaded);
+    }
 
+    public static CompletableFuture<Void> loadAsyncFrom(IAsyncTranslationLoader loader) throws IOException {
+        return loader.load().thenAccept(loaded -> {
+           if(loaded != null) addLoaded(loaded);
+        });
+    }
+
+    private static void addLoaded(Map<String, Map<String, String>> loaded) {
         loaded.forEach((locale, translations) -> {
             Map<String, String> alreadyLoaded = languages.get(locale);
             if(alreadyLoaded == null) {
