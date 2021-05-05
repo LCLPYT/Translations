@@ -12,6 +12,7 @@ import work.lclpnet.translations.Translations;
 import work.lclpnet.translations.network.LCLPNetworkTranslations;
 import work.lclpnet.translations.network.LCLPTranslationAPI;
 import work.lclpnet.translations.network.TranslationApplication;
+import work.lclpnet.translations.util.ILogger;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public class NetworkTranslationTests {
     @Test
     void testAddFetched() throws IOException {
         APIAccess.PUBLIC.setHost("http://localhost:8000");
-        LCLPNetworkTranslations.loadApplications("mc_server").join();
+        LCLPNetworkTranslations.loadApplications(ILogger.SILENT, "mc_server").join();
         assertTrue(Translations.hasTranslation("en_us", "mc-link.requesting"));
     }
 

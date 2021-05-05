@@ -31,9 +31,10 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
     /**
      * @param applications A list of LCLPNetwork translation applications that should be fetched.
      * @param languages An optional list of languages to load. If null, every language will be loaded.
+     * @param logger An optional logger for information.
      */
-    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages) {
-        this(applications, languages, LCLPTranslationAPI.INSTANCE, ILogger.SILENT);
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, @Nullable ILogger logger) {
+        this(applications, languages, LCLPTranslationAPI.INSTANCE, logger);
     }
 
     /**
