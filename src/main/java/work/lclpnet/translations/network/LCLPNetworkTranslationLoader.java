@@ -7,9 +7,9 @@
 package work.lclpnet.translations.network;
 
 import work.lclpnet.translations.io.IAsyncTranslationLoader;
+import work.lclpnet.translations.util.ILogger;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +26,14 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
     private final List<String> applications;
     private final List<String> languages;
     private final LCLPTranslationAPI api;
+    private final ILogger logger;
 
     /**
      * @param applications A list of LCLPNetwork translation applications that should be fetched.
      * @param languages An optional list of languages to load. If null, every language will be loaded.
      */
     public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages) {
-        this(applications, languages, LCLPTranslationAPI.INSTANCE);
+        this(applications, languages, LCLPTranslationAPI.INSTANCE, ILogger.SILENT);
     }
 
     /**
@@ -40,17 +41,23 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
      * @param languages An optional list of languages to load. If null, every language will be loaded.
      * @param api The api to be used.
      */
-    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api) {
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, @Nullable ILogger logger) {
         this.applications = Objects.requireNonNull(applications);
         this.languages = languages;
         this.api = Objects.requireNonNull(api);
+        this.logger = logger == null ? ILogger.SILENT : logger;
     }
 
     @Nullable
     @Override
-    public CompletableFuture<Map<String, Map<String, String>>> load() throws IOException {
+    public CompletableFuture<Map<String, Map<String, String>>> load() {
+        logger.info(String.format("Fetching translations for applications: %s and for languages: %s", this.applications, this.languages == null ? "ALL" : this.languages));
+
         return api.getTranslations(this.applications, this.languages).thenApply(apps -> {
-            if(apps == null) return null;
+            if(apps == null) {
+                logger.error(String.format("There was an error fetching translations for applications: %s", this.applications));
+                return null;
+            }
 
             Map<String, Map<String, String>> translations = new HashMap<>();
 
@@ -68,6 +75,11 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
                 }
             }
 
+            int entries = 0;
+            for(Map<String, String> langTranslations : translations.values())
+                entries += langTranslations.size();
+
+            logger.info(String.format("Loaded %s locales with a total of %s translation entries.", translations.size(), entries));
             return translations;
         });
     }
