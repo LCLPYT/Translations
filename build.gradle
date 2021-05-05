@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021 LCLP.
+ *
+ * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
+ */
+
 import org.ajoberstar.grgit.Tag
 
 plugins {
@@ -52,6 +58,7 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
