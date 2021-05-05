@@ -40,6 +40,7 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
      * @param applications A list of LCLPNetwork translation applications that should be fetched.
      * @param languages An optional list of languages to load. If null, every language will be loaded.
      * @param api The api to be used.
+     * @param logger An optional logger for information.
      */
     public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, @Nullable ILogger logger) {
         this.applications = Objects.requireNonNull(applications);
