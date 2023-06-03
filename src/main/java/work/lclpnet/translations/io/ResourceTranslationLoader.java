@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 LCLP.
+ * Copyright (c) 2023 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import work.lclpnet.translations.util.ILogger;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -29,17 +29,17 @@ public class ResourceTranslationLoader implements ITranslationLoader {
 
     private ITranslationLocator translationLocator;
     public final ResourceLoader resourceLoader;
-    public final ILogger logger;
+    public final Logger logger;
 
     /**
      * @param translationLocator A translation file locator.
-     * @param resourceLoader A resource loader which will receive the resource names located by the {@link ITranslationLocator}
-     * @param logger An optional logger to receive feedback.
+     * @param resourceLoader     A resource loader which will receive the resource names located by the {@link ITranslationLocator}
+     * @param logger             A logger to receive feedback.
      */
-    public ResourceTranslationLoader(ITranslationLocator translationLocator, ResourceLoader resourceLoader, @Nullable ILogger logger) {
+    public ResourceTranslationLoader(ITranslationLocator translationLocator, ResourceLoader resourceLoader, Logger logger) {
         this.translationLocator = Objects.requireNonNull(translationLocator);
         this.resourceLoader = Objects.requireNonNull(resourceLoader);
-        this.logger = logger == null ? ILogger.SILENT : logger;
+        this.logger = logger;
     }
 
     /**
@@ -54,12 +54,11 @@ public class ResourceTranslationLoader implements ITranslationLoader {
     @Nullable
     @Override
     public Map<String, Map<String, String>> load() throws IOException {
-        logger.info("Locating translation files...");
+        logger.info("Locating translation files");
 
         List<String> translationFiles = translationLocator.locate();
 
-        logger.info(String.format("Located %s translation files.", translationFiles.size()));
-        logger.info("Loading translations...");
+        logger.info(String.format("Loading %s translation files", translationFiles.size()));
 
         Map<String, Map<String, String>> languages = new HashMap<>();
 
@@ -70,7 +69,8 @@ public class ResourceTranslationLoader implements ITranslationLoader {
             logger.info(String.format("Trying to load language file '%s'...", file));
 
             try (InputStream in = resourceLoader.openResource(file)) {
-                if(in == null) throw new FileNotFoundException(String.format("Resource '%s' could not be found.", file));
+                if (in == null)
+                    throw new FileNotFoundException(String.format("Resource '%s' could not be found.", file));
 
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
                     translationObj = gson.fromJson(reader, JsonObject.class);
@@ -82,12 +82,13 @@ public class ResourceTranslationLoader implements ITranslationLoader {
 
             String[] parts = file.split("/");
             String fileName = parts[parts.length - 1];
-            String language = fileName.substring(0, fileName.length() - 5); // remove .json ending
+            String language = fileName.substring(0, fileName.length() - 5);  // remove .json ending
 
             Map<String, String> translations = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : translationObj.entrySet()) {
                 JsonElement value = entry.getValue();
                 String key = entry.getKey();
+
                 try {
                     String val = value.getAsString();
                     translations.put(key, val);
@@ -97,15 +98,22 @@ public class ResourceTranslationLoader implements ITranslationLoader {
             }
 
             Map<String, String> alreadyPut = languages.get(language);
-            if(alreadyPut == null) languages.put(language, translations);
-            else alreadyPut.putAll(translations);
+
+            if (alreadyPut == null) {
+                languages.put(language, translations);
+            } else {
+                alreadyPut.putAll(translations);
+            }
         }
 
         int entries = 0;
-        for(Map<String, String> langTranslations : languages.values())
+
+        for (Map<String, String> langTranslations : languages.values()) {
             entries += langTranslations.size();
+        }
 
         logger.info(String.format("Loaded %s locales with a total of %s translation entries.", languages.size(), entries));
+
         return languages;
     }
 

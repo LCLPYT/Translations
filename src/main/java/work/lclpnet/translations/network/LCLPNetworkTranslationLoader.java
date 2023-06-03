@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2021 LCLP.
+ * Copyright (c) 2023 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
 package work.lclpnet.translations.network;
 
+import org.slf4j.Logger;
 import work.lclpnet.translations.io.IAsyncTranslationLoader;
-import work.lclpnet.translations.util.ILogger;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -26,62 +26,63 @@ public class LCLPNetworkTranslationLoader implements IAsyncTranslationLoader {
     private final List<String> applications;
     private final List<String> languages;
     private final LCLPTranslationAPI api;
-    private final ILogger logger;
+    private final Logger logger;
 
     /**
      * @param applications A list of LCLPNetwork translation applications that should be fetched.
-     * @param languages An optional list of languages to load. If null, every language will be loaded.
-     * @param logger An optional logger for information.
+     * @param languages    An optional list of languages to load. If null, every language will be loaded.
+     * @param logger       A logger for information.
      */
-    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, @Nullable ILogger logger) {
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, Logger logger) {
         this(applications, languages, LCLPTranslationAPI.INSTANCE, logger);
     }
 
     /**
      * @param applications A list of LCLPNetwork translation applications that should be fetched.
-     * @param languages An optional list of languages to load. If null, every language will be loaded.
-     * @param api The api to be used.
-     * @param logger An optional logger for information.
+     * @param languages    An optional list of languages to load. If null, every language will be loaded.
+     * @param api          The api to be used.
+     * @param logger       A logger for information.
      */
-    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, @Nullable ILogger logger) {
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, Logger logger) {
         this.applications = Objects.requireNonNull(applications);
         this.languages = languages;
         this.api = Objects.requireNonNull(api);
-        this.logger = logger == null ? ILogger.SILENT : logger;
+        this.logger = logger;
     }
 
     @Nullable
     @Override
     public CompletableFuture<Map<String, Map<String, String>>> load() {
-        logger.info(String.format("Fetching translations for applications: %s and for languages: %s", this.applications, this.languages == null ? "ALL" : this.languages));
+        logger.info(String.format("Fetching translations for applications: %s for languages: %s", this.applications, this.languages == null ? "ALL" : this.languages));
 
         return api.getTranslations(this.applications, this.languages).thenApply(apps -> {
-            if(apps == null) {
+            if (apps == null) {
                 logger.error(String.format("There was an error fetching translations for applications: %s", this.applications));
                 return null;
             }
 
             Map<String, Map<String, String>> translations = new HashMap<>();
 
-            for(TranslationApplication app : apps) {
-                for(TranslationLanguage lang : app.getLanguages()) {
+            for (TranslationApplication app : apps) {
+                for (TranslationLanguage lang : app.getLanguages()) {
                     Map<String, String> langEntries;
-                    if(translations.containsKey(lang.getLocale())) langEntries = translations.get(lang.getLocale());
+                    if (translations.containsKey(lang.getLocale())) langEntries = translations.get(lang.getLocale());
                     else {
                         langEntries = new HashMap<>();
                         translations.put(lang.getLocale(), langEntries);
                     }
 
-                    for(TranslationEntry entry : lang.getEntries())
+                    for (TranslationEntry entry : lang.getEntries())
                         langEntries.put(entry.getKey(), entry.getValue());
                 }
             }
 
             int entries = 0;
-            for(Map<String, String> langTranslations : translations.values())
+            for (Map<String, String> langTranslations : translations.values())
                 entries += langTranslations.size();
 
             logger.info(String.format("Loaded %s locales with a total of %s translation entries.", translations.size(), entries));
+
             return translations;
         });
     }
