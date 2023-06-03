@@ -7,7 +7,7 @@
 package work.lclpnet.translations.network;
 
 import org.slf4j.Logger;
-import work.lclpnet.translations.Translations;
+import work.lclpnet.translations.Translator;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -16,33 +16,39 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Utility class to load LCLPNetwork translations to {@link Translations}.
+ * Utility class to load LCLPNetwork translations to {@link Translator}.
  */
 public class LCLPNetworkTranslations {
 
+    private final Logger logger;
+    private final Translator translator;
+
+    public LCLPNetworkTranslations(Logger logger, Translator translator) {
+        this.logger = logger;
+        this.translator = translator;
+    }
+
     /**
-     * Fetch LCLPNetwork translations and load them to {@link Translations}.
+     * Fetch LCLPNetwork translations and load them to {@link Translator}.
      *
-     * @param logger A logger for information.
      * @param applications An array of {@link TranslationApplication} names to be fetched.
      * @return A completable future that will be notified when the operation is done.
      * @throws IOException If there was an IO-error of any kind.
      */
-    public static CompletableFuture<Void> loadApplications(Logger logger, String... applications) throws IOException {
-        return loadApplications(Arrays.asList(applications), null, logger);
+    public CompletableFuture<Void> loadApplications(String... applications) throws IOException {
+        return loadApplications(Arrays.asList(applications), null);
     }
 
     /**
-     * Fetch LCLPNetwork translations and load them to {@link Translations}.
+     * Fetch LCLPNetwork translations and load them to {@link Translator}.
      *
      * @param applications A list of {@link TranslationApplication} names to be fetched.
      * @param languages An optional list of languages to be fetched. If null, every language will be fetched.
-     * @param logger A logger for information.
      * @return A completable future that will be notified when the operation is done.
      * @throws IOException If there was an IO-error of any kind.
      */
-    public static CompletableFuture<Void> loadApplications(List<String> applications, @Nullable List<String> languages, Logger logger) throws IOException {
+    public CompletableFuture<Void> loadApplications(List<String> applications, @Nullable List<String> languages) throws IOException {
         LCLPNetworkTranslationLoader loader = new LCLPNetworkTranslationLoader(applications, languages, logger);
-        return Translations.loadAsyncFrom(loader);
+        return translator.loadAsyncFrom(loader);
     }
 }

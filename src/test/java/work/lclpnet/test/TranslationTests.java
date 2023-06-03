@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 LCLP.
+ * Copyright (c) 2023 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
@@ -7,7 +7,7 @@
 package work.lclpnet.test;
 
 import org.junit.jupiter.api.Test;
-import work.lclpnet.translations.Translations;
+import work.lclpnet.translations.Translator;
 import work.lclpnet.translations.io.ITranslationLoader;
 
 import java.io.IOException;
@@ -56,18 +56,19 @@ public class TranslationTests {
             return languages;
         };
 
-        Translations.loadFrom(first);
-        Translations.loadFrom(second);
+        Translator translator = new Translator();
+        translator.loadFrom(first);
+        translator.loadFrom(second);
 
-        assertTrue(Translations.hasTranslation("en_us", "test.first"));
+        assertTrue(translator.hasTranslation("en_us", "test.first"));
 
-        String testFirst = Translations.getTranslation("en_us", "test.first");
+        String testFirst = translator.translate("en_us", "test.first");
         assertEquals(expectedTestFirst, testFirst);
 
-        String testSecond = Translations.getTranslation("en_us", "test.second");
+        String testSecond = translator.translate("en_us", "test.second");
         assertEquals(expectedTestSecond, testSecond);
 
-        String testOther = Translations.getTranslation("en_us", "test.other");
+        String testOther = translator.translate("en_us", "test.other");
         assertEquals(expectedTestOther, testOther);
     }
 

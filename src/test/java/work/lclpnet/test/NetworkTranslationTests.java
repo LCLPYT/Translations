@@ -9,7 +9,7 @@ package work.lclpnet.test;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import work.lclpnet.translations.Translations;
+import work.lclpnet.translations.Translator;
 import work.lclpnet.translations.network.LCLPNetworkTranslations;
 import work.lclpnet.translations.network.LCLPTranslationAPI;
 import work.lclpnet.translations.network.TranslationApplication;
@@ -34,7 +34,10 @@ public class NetworkTranslationTests {
 
     @Test
     void testAddFetched() throws IOException {
-        LCLPNetworkTranslations.loadApplications(logger, "mc_server").join();
-        assertTrue(Translations.hasTranslation("en_us", "mc-link.requesting"));
+        Translator translator = new Translator();
+
+        new LCLPNetworkTranslations(logger, translator).loadApplications("mc_server").join();
+
+        assertTrue(translator.hasTranslation("en_us", "mc-link.requesting"));
     }
 }
