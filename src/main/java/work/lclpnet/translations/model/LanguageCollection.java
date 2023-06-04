@@ -8,12 +8,10 @@ package work.lclpnet.translations.model;
 
 import javax.annotation.Nullable;
 
-public interface Language {
+public interface LanguageCollection {
 
     @Nullable
-    String get(String key);
+    Language get(String key);
 
     Iterable<String> keys();
-
-    boolean has(String key);
 }
