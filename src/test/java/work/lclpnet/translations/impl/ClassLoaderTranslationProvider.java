@@ -15,13 +15,13 @@ import work.lclpnet.translations.loader.language.LanguageLoader;
 import java.util.Collections;
 import java.util.List;
 
-public class CodeSourceTranslationProvider implements TranslationProvider {
+public class ClassLoaderTranslationProvider implements TranslationProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(CodeSourceTranslationProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(ClassLoaderTranslationProvider.class);
 
     @Override
     public LanguageLoader create() {
-        ClassLoader classLoader = CodeSourceTranslationProvider.class.getClassLoader();
+        ClassLoader classLoader = ClassLoaderTranslationProvider.class.getClassLoader();
         List<String> resourceDirectories = Collections.singletonList("lang/");
 
         return new ClassLoaderLanguageLoader(classLoader, resourceDirectories, logger);

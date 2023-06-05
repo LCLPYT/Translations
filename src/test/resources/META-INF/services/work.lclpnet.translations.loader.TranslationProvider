@@ -5,4 +5,4 @@
 #
 
 work.lclpnet.translations.impl.LCLPNetworkTranslationProvider
-work.lclpnet.translations.impl.CodeSourceTranslationProvider
+work.lclpnet.translations.impl.ClassLoaderTranslationProvider
