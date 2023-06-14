@@ -36,7 +36,7 @@ public class DefaultLanguageTranslator implements Translator {
     }
 
     @Override
-    public @Nonnull String translate(String locale, String key, Object... substitutes) {
+    public @Nonnull String translate(String locale, String key) {
         Language language;
 
         synchronized (this) {
@@ -57,7 +57,7 @@ public class DefaultLanguageTranslator implements Translator {
             if (translation == null) return key;
         }
 
-        return String.format(translation, substitutes);
+        return translation;
     }
 
     @Override

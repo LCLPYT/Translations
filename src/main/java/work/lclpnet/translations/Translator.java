@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 public interface Translator {
 
     @Nonnull
-    String translate(String locale, String key, Object... substitutes);
+    String translate(String locale, String key);
 
     /**
      * Check if there is a specific translation for a given language.
@@ -25,4 +25,9 @@ public interface Translator {
 
     @Nonnull
     SimpleDateFormat getDateFormat(String locale);
+
+    @Nonnull
+    default String translate(String locale, String key, Object... substitutes) {
+        return String.format(translate(locale, key), substitutes);
+    }
 }
