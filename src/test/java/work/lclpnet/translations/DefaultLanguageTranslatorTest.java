@@ -14,8 +14,7 @@ import work.lclpnet.translations.model.Language;
 import work.lclpnet.translations.model.StaticLanguage;
 import work.lclpnet.translations.model.StaticLanguageCollection;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,5 +109,24 @@ class DefaultLanguageTranslatorTest {
 
         String testOther = translator.translate("en_us", "test.other");
         assertEquals(expectedTestOther, testOther);
+    }
+
+    @Test
+    void getLanguagesTest() {
+        TranslationLoader loader = () -> {
+            Map<String, Language> languages = new HashMap<>();
+
+            languages.put("en_us", new StaticLanguage(new HashMap<>()));
+            languages.put("de_de", new StaticLanguage(new HashMap<>()));
+
+            return CompletableFuture.completedFuture(new StaticLanguageCollection(languages));
+        };
+
+        Translator translator = DefaultLanguageTranslator.create(loader).join();
+
+        Set<String> languages = new HashSet<>();
+        translator.getLanguages().forEach(languages::add);
+
+        assertEquals(new HashSet<>(Arrays.asList("en_us", "de_de")), languages);
     }
 }

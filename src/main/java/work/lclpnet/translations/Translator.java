@@ -26,6 +26,8 @@ public interface Translator {
     @Nonnull
     SimpleDateFormat getDateFormat(String locale);
 
+    Iterable<String> getLanguages();
+
     @Nonnull
     default String translate(String locale, String key, Object... substitutes) {
         return String.format(translate(locale, key), substitutes);

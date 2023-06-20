@@ -111,6 +111,11 @@ public class DefaultLanguageTranslator implements Translator {
         return format;
     }
 
+    @Override
+    public Iterable<String> getLanguages() {
+        return languages.keys();
+    }
+
     @Nullable
     private Language getLanguage(String key) {
         synchronized (this) {
