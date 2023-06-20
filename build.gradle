@@ -1,13 +1,13 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'gradle-build-utils'
+    id 'gradle-build-utils' version '1.5.3'
 }
 
-Properties props = loadProperties.call('publish.properties') as Properties
+Properties props = buildUtils.loadProperties('publish.properties')
 
 group = project.maven_group
-version = gitVersion.call()
+version = buildUtils.gitVersion()
 archivesBaseName = project.archives_base_name
 
 repositories {
@@ -48,7 +48,9 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = project.archives_base_name
-            from components.java
+
+            artifact jar
+            artifact sourcesJar
 
             pom {
                 name = 'translations4j'
@@ -57,24 +59,5 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            def env = System.getenv()
-            if (Arrays.stream("DEPLOY_URL", "DEPLOY_USER", "DEPLOY_PASSWORD").allMatch(env.&containsKey)) {
-                credentials {
-                    username env.get("DEPLOY_USER")
-                    password env.get("DEPLOY_PASSWORD")
-                }
-                url env.get("DEPLOY_URL")
-            } else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
-                credentials {
-                    username props.getProperty('mavenUser')
-                    password props.getProperty('mavenPassword')
-                }
-                url props.getProperty('mavenHost')
-            } else {
-                url "file:///${project.projectDir}/repo"
-            }
-        }
-    }
+    buildUtils.setupPublishRepository(repositories, props)
 }
