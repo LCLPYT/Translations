@@ -70,7 +70,7 @@ public class ClassLoaderLanguageLoader implements LanguageLoader {
                 try {
                     parseUrl(resource, resourceDirectory, builder);
                 } catch (IOException e) {
-                    logger.error("Failed to parse resource url {}", resource);
+                    logger.error("Failed to parse resource url {}", resource, e);
                 }
             }
         }
