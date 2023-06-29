@@ -9,21 +9,22 @@ package work.lclpnet.translations.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.lclpnet.translations.loader.TranslationProvider;
-import work.lclpnet.translations.loader.language.ClassLoaderLanguageLoader;
 import work.lclpnet.translations.loader.language.LanguageLoader;
+import work.lclpnet.translations.loader.language.UrlLanguageLoader;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-public class ClassLoaderTranslationProvider implements TranslationProvider {
+public class UrlTranslationProvider implements TranslationProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(ClassLoaderTranslationProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(UrlTranslationProvider.class);
 
     @Override
     public LanguageLoader create() {
-        ClassLoader classLoader = ClassLoaderTranslationProvider.class.getClassLoader();
+        URL[] url = UrlLanguageLoader.getResourceLocations(this);
         List<String> resourceDirectories = Collections.singletonList("lang/");
 
-        return new ClassLoaderLanguageLoader(classLoader, resourceDirectories, logger);
+        return new UrlLanguageLoader(url, resourceDirectories, logger);
     }
 }

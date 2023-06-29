@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import work.lclpnet.translations.model.LanguageCollection;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -22,15 +21,13 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClassLoaderLanguageLoaderTest {
+class UrlLanguageLoaderTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
 
     @Test
     void loadFromFileSystem() {
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        test(classLoader);
+        test(this, "lang/");
     }
 
     @Test
@@ -38,15 +35,15 @@ class ClassLoaderLanguageLoaderTest {
         URL url = getClass().getClassLoader().getResource("test.jar");
         assertNotNull(url);
 
-        ClassLoader classLoader = new URLClassLoader(new URL[] {url});
-
-        test(classLoader);
+        test(url, "jarlang/");
     }
 
-    private static void test(ClassLoader classLoader) {
-        List<String> resourceDirectories = Collections.singletonList("lang/");
+    private static void test(Object ref, String dir) {
+        List<String> resourceDirectories = Collections.singletonList(dir);
 
-        ClassLoaderLanguageLoader loader = new ClassLoaderLanguageLoader(classLoader, resourceDirectories, logger);
+        URL[] urls = UrlLanguageLoader.getResourceLocations(ref);
+
+        UrlLanguageLoader loader = new UrlLanguageLoader(urls, resourceDirectories, logger);
 
         LanguageCollection languages = loader.loadLanguages().join();
         Set<String> keys = StreamSupport.stream(languages.keys().spliterator(), false).collect(Collectors.toSet());
