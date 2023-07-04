@@ -41,13 +41,13 @@ class UrlLanguageLoaderTest {
 
     @Test
     void loadFromClassLoaderDirectoryUrl() throws IOException {
-        String path = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        URL url = Paths.get("src", "test", "resources").toAbsolutePath().toUri().toURL();
 
-        if (path.endsWith(File.separator)) {
-            path = path.substring(0, path.length() - 1);
+        String s = url.toString();
+
+        if (s.endsWith(File.separator)) {
+            url = new URL(s.substring(0, s.length() - 1));
         }
-
-        URL url = new URL("file:/" + path);
 
         try (URLClassLoader classLoader = new URLClassLoader(new URL[] {url})) {
             test(classLoader, "lang/");
