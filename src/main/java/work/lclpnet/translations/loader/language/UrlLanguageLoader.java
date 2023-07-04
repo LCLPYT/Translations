@@ -83,11 +83,31 @@ public class UrlLanguageLoader implements LanguageLoader {
         String path = url.getPath();
         if (path == null) return;
 
-        if (path.endsWith("/")) {
+        String protocol = url.getProtocol();
+        boolean local = "file".equals(protocol);
+
+        if (local && path.endsWith("/")) {
             parseDirectory(url, builder);
-        } else {
-            parseJar(url, builder);
+            return;
         }
+
+        if (local) {
+            // check if the url points to a directory
+            Path localPath;
+
+            try {
+                localPath = Paths.get(url.toURI());
+            } catch (URISyntaxException e) {
+                localPath = null;
+            }
+
+            if (localPath != null && Files.isDirectory(localPath)) {
+                parseDirectory(url, builder);
+                return;
+            }
+        }
+
+        parseJar(url, builder);
     }
 
     private void parseJar(URL url, JsonLanguageCollectionBuilder builder) throws IOException {

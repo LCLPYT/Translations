@@ -11,7 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.lclpnet.translations.model.LanguageCollection;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +32,26 @@ class UrlLanguageLoaderTest {
     @Test
     void loadFromFileSystem() {
         test(this, "lang/");
+    }
+
+    @Test
+    void loadFromFileSystemNoTrailingSlash() {
+        test(this, "lang");
+    }
+
+    @Test
+    void loadFromClassLoaderDirectoryUrl() throws IOException {
+        String path = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+
+        if (path.endsWith(File.separator)) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        URL url = new URL("file:/" + path);
+
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[] {url})) {
+            test(classLoader, "lang/");
+        }
     }
 
     @Test
