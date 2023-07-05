@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'java-library'
     id 'maven-publish'
     id 'gradle-build-utils' version '1.5.3'
 }
@@ -18,26 +19,48 @@ repositories {
     }
 }
 
+sourceSets {
+    network {
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+
+    test {
+        compileClasspath += network.output + network.compileClasspath
+        runtimeClasspath += network.output + network.runtimeClasspath
+    }
+}
+
+java {
+    withSourcesJar()
+
+    registerFeature('network') {
+        usingSourceSet(sourceSets.network)
+    }
+}
+
 dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.slf4j:slf4j-api:2.0.6'
-    implementation 'work.lclpnet:lclpnetwork-api:1.1.0'
+    networkApi 'work.lclpnet:lclpnetwork-api:1.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+configurations {
+    networkImplementation {
+        extendsFrom implementation
+    }
 }
 
 test {
     useJUnitPlatform()
 }
 
-java {
-    withSourcesJar()
-}
-
 // tweak jar tasks
-[jar, sourcesJar].each {
+[jar, sourcesJar, networkJar].each {
     // include license file
     it.from('LICENSE') {
         rename { "${it}_${project.archivesBaseName}" }
@@ -49,8 +72,7 @@ publishing {
         mavenJava(MavenPublication) {
             artifactId = project.archives_base_name
 
-            artifact jar
-            artifact sourcesJar
+            from components.java
 
             pom {
                 name = 'translations4j'
