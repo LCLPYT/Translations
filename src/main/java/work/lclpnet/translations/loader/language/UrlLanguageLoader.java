@@ -15,10 +15,7 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -107,7 +104,33 @@ public class UrlLanguageLoader implements LanguageLoader {
             }
         }
 
-        parseJar(url, builder);
+        parseJar(adjustJarUrlIfNeeded(url), builder);
+    }
+
+    private URL adjustJarUrlIfNeeded(URL url) {
+        String str = url.toString();
+
+        if (!str.startsWith("jar:")) {
+            return url;
+        }
+
+        int idx = str.indexOf('!');
+
+        if (idx == -1) {
+            return url;
+        }
+
+        // for now, all jar:<base>!<path> urls will be redirected to <base>.
+        // if jar-in-jar should be supported, this has to be adjusted properly
+
+        String base = str.substring(4, idx);
+
+        try {
+            return new URL(base);
+        } catch (MalformedURLException e) {
+            logger.error("Failed to construct base url for {}", url, e);
+            return url;
+        }
     }
 
     private void parseJar(URL url, JsonLanguageCollectionBuilder builder) throws IOException {

@@ -13,6 +13,7 @@ import work.lclpnet.translations.model.LanguageCollection;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
@@ -62,10 +63,25 @@ class UrlLanguageLoaderTest {
         test(url, "jarlang/");
     }
 
-    private static void test(Object ref, String dir) {
-        List<String> resourceDirectories = Collections.singletonList(dir);
+    @Test
+    void loadFromJarUrl() throws MalformedURLException {
+        URL url = getClass().getClassLoader().getResource("test.jar");
+        assertNotNull(url);
+        assertNotEquals("jar", url.getProtocol());
 
+        URL jarUrl = new URL(String.format("jar:%s!/", url));
+
+        testUrls(new URL[] { jarUrl }, "jarlang/");
+    }
+
+    private static void test(Object ref, String dir) {
         URL[] urls = UrlLanguageLoader.getResourceLocations(ref);
+
+        testUrls(urls, dir);
+    }
+
+    private static void testUrls(URL[] urls, String dir ) {
+        List<String> resourceDirectories = Collections.singletonList(dir);
 
         UrlLanguageLoader loader = new UrlLanguageLoader(urls, resourceDirectories, logger);
 
