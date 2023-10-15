@@ -6,8 +6,11 @@
 
 package work.lclpnet.translations.model;
 
+import work.lclpnet.translations.util.Pair;
+
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class StaticLanguageCollection implements LanguageCollection {
 
@@ -26,5 +29,10 @@ public class StaticLanguageCollection implements LanguageCollection {
     @Override
     public Iterable<String> keys() {
         return languages.keySet();
+    }
+
+    @Override
+    public Stream<Pair<String, ? extends Language>> stream() {
+        return languages.entrySet().stream().map(Pair::of);
     }
 }

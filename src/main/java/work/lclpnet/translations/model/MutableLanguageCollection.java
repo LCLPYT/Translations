@@ -6,10 +6,13 @@
 
 package work.lclpnet.translations.model;
 
+import work.lclpnet.translations.util.Pair;
+
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class MutableLanguageCollection implements LanguageCollection {
 
@@ -36,5 +39,28 @@ public class MutableLanguageCollection implements LanguageCollection {
             MutableLanguage language = languages.computeIfAbsent(key, ignored -> new MutableLanguage());
             language.addAll(otherLanguage);
         }
+    }
+
+    @Override
+    public Stream<Pair<String, ? extends Language>> stream() {
+        return languages.entrySet().stream().map(Pair::of);
+    }
+
+    public static MutableLanguageCollection merge(Stream<? extends LanguageCollection> collections) {
+        // reduction could be parallelized with collections.parallel()...
+
+        return collections.reduce(new MutableLanguageCollection(), (partial, collection) -> {
+            // add every collection from the stream to the partial collection
+
+            partial.merge(collection);
+
+            return partial;
+        }, (partial, collection) -> {
+            // combine mutable language collections
+
+            partial.merge(collection);
+
+            return partial;
+        });
     }
 }

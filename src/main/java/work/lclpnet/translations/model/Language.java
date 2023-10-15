@@ -6,7 +6,10 @@
 
 package work.lclpnet.translations.model;
 
+import work.lclpnet.translations.util.Pair;
+
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
 public interface Language {
 
@@ -16,4 +19,6 @@ public interface Language {
     Iterable<String> keys();
 
     boolean has(String key);
+
+    Stream<Pair<String, String>> stream();
 }

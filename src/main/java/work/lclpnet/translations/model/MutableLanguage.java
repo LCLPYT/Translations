@@ -6,10 +6,13 @@
 
 package work.lclpnet.translations.model;
 
+import work.lclpnet.translations.util.Pair;
+
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class MutableLanguage implements Language {
 
@@ -29,6 +32,11 @@ public class MutableLanguage implements Language {
     @Override
     public boolean has(String key) {
         return mapping.containsKey(key);
+    }
+
+    @Override
+    public Stream<Pair<String, String>> stream() {
+        return mapping.entrySet().stream().map(Pair::of);
     }
 
     public void add(String key, String value) {

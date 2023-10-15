@@ -12,7 +12,6 @@ import work.lclpnet.translations.model.MutableLanguageCollection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 public abstract class MultiSourceTranslationLoader implements TranslationLoader {
 
@@ -25,26 +24,8 @@ public abstract class MultiSourceTranslationLoader implements TranslationLoader 
         CompletableFuture<?>[] array = futures.toArray(new CompletableFuture[0]);
 
         return CompletableFuture.allOf(array)
-                .thenApply(ignored -> merge(futures.stream().map(CompletableFuture::join)));
+                .thenApply(ignored -> MutableLanguageCollection.merge(futures.stream().map(CompletableFuture::join)));
     }
 
     protected abstract void collectFutures(List<CompletableFuture<? extends LanguageCollection>> futures);
-
-    private MutableLanguageCollection merge(Stream<LanguageCollection> collections) {
-        // reduction could be parallelized with collections.parallel()...
-
-        return collections.reduce(new MutableLanguageCollection(), (partial, collection) -> {
-            // add every collection from the stream to the partial collection
-
-            partial.merge(collection);
-
-            return partial;
-        }, (partial, collection) -> {
-            // combine mutable language collections
-
-            partial.merge(collection);
-
-            return partial;
-        });
-    }
 }

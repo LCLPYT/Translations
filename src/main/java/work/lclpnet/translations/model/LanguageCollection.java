@@ -6,7 +6,10 @@
 
 package work.lclpnet.translations.model;
 
+import work.lclpnet.translations.util.Pair;
+
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
 public interface LanguageCollection {
 
@@ -14,4 +17,6 @@ public interface LanguageCollection {
     Language get(String key);
 
     Iterable<String> keys();
+
+    Stream<Pair<String, ? extends Language>> stream();
 }
