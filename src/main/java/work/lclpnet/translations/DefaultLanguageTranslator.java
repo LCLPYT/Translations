@@ -8,7 +8,7 @@ package work.lclpnet.translations;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import work.lclpnet.translations.loader.translation.TranslationLoader;
+import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.model.Language;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.model.StaticLanguageCollection;

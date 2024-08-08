@@ -43,7 +43,7 @@ java {
 }
 
 dependencies {
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    networkCompileOnly(compileOnly('org.jetbrains:annotations:24.1.0'))
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.slf4j:slf4j-api:2.0.6'
     networkApi 'work.lclpnet:lclpnetwork-api:1.1.0'
@@ -74,6 +74,11 @@ test {
     it.from('LICENSE') {
         rename { "${it}_${project.archivesBaseName}" }
     }
+}
+
+// support utf-8 java source
+tasks.withType(JavaCompile).each {
+    it.options.encoding = "UTF-8"
 }
 
 publishing {

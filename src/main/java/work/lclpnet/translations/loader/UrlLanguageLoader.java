@@ -4,13 +4,14 @@
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
-package work.lclpnet.translations.loader.language;
+package work.lclpnet.translations.loader;
 
 import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.util.IOUtil;
+import work.lclpnet.translations.util.JsonLanguageCollectionBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class UrlLanguageLoader implements LanguageLoader {
+public class UrlLanguageLoader implements TranslationLoader {
 
     private final URL[] urls;
     private final Iterable<String> resourceDirectories;
@@ -52,7 +53,7 @@ public class UrlLanguageLoader implements LanguageLoader {
     }
 
     @Override
-    public CompletableFuture<? extends LanguageCollection> loadLanguages() {
+    public CompletableFuture<? extends LanguageCollection> load() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return loadSync();

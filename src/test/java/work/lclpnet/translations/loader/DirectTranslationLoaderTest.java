@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
-package work.lclpnet.translations.loader.translation;
+package work.lclpnet.translations.loader;
 
 import org.junit.jupiter.api.Test;
-import work.lclpnet.translations.loader.language.LanguageLoader;
 import work.lclpnet.translations.model.Language;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.model.StaticLanguage;
@@ -30,7 +29,8 @@ class DirectTranslationLoaderTest {
         languages.put("en_us", new StaticLanguage(new HashMap<>()));
         languages.put("de_de", new StaticLanguage(new HashMap<>()));
 
-        DirectTranslationLoader loader = new DirectTranslationLoader(staticLoader(languages));
+        MultiTranslationLoader loader = new MultiTranslationLoader();
+        loader.addLoader(staticLoader(languages));
 
         LanguageCollection collection = loader.load().get();
 
@@ -51,7 +51,9 @@ class DirectTranslationLoaderTest {
         other.put("en_us", new StaticLanguage(new HashMap<>()));
         other.put("ja_jp", new StaticLanguage(new HashMap<>()));
 
-        DirectTranslationLoader loader = new DirectTranslationLoader(staticLoader(languages), staticLoader(other));
+        MultiTranslationLoader loader = new MultiTranslationLoader();
+        loader.addLoader(staticLoader(languages));
+        loader.addLoader(staticLoader(other));
 
         LanguageCollection collection = loader.load().get();
 
@@ -72,7 +74,8 @@ class DirectTranslationLoaderTest {
         de.put("hello", "Hallo");
         languages.put("de_de", new StaticLanguage(de));
 
-        DirectTranslationLoader loader = new DirectTranslationLoader(staticLoader(languages));
+        MultiTranslationLoader loader = new MultiTranslationLoader();
+        loader.addLoader(staticLoader(languages));
 
         LanguageCollection collection = loader.load().get();
 
@@ -107,7 +110,9 @@ class DirectTranslationLoaderTest {
         jp.put("hello", "こんにちは");
         other.put("ja_jp", new StaticLanguage(jp));
 
-        DirectTranslationLoader loader = new DirectTranslationLoader(staticLoader(languages), staticLoader(other));
+        MultiTranslationLoader loader = new MultiTranslationLoader();
+        loader.addLoader(staticLoader(languages));
+        loader.addLoader(staticLoader(other));
 
         LanguageCollection collection = loader.load().get();
 
@@ -124,7 +129,7 @@ class DirectTranslationLoaderTest {
                 .collect(Collectors.toSet()));
     }
 
-    private static LanguageLoader staticLoader(Map<String, ? extends Language> languages) {
+    private static TranslationLoader staticLoader(Map<String, ? extends Language> languages) {
         return () -> CompletableFuture.completedFuture(new StaticLanguageCollection(languages));
     }
 

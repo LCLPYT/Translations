@@ -6,9 +6,9 @@
 
 package work.lclpnet.translations.network;
 
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import work.lclpnet.translations.loader.language.LanguageLoader;
+import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.model.MutableLanguage;
 import work.lclpnet.translations.model.StaticLanguageCollection;
@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author LCLP
  */
-public class LCLPNetworkLanguageLoader implements LanguageLoader {
+public class LCLPNetworkLanguageLoader implements TranslationLoader {
 
     private final List<String> applications;
     private final List<String> languages;
@@ -54,7 +54,7 @@ public class LCLPNetworkLanguageLoader implements LanguageLoader {
     }
 
     @Override
-    public CompletableFuture<LanguageCollection> loadLanguages() {
+    public CompletableFuture<LanguageCollection> load() {
         logger.info(String.format("Fetching translations for applications: %s for languages: %s", this.applications, this.languages == null ? "ALL" : this.languages));
 
         return api.getTranslations(this.applications, this.languages).thenApply(apps -> {

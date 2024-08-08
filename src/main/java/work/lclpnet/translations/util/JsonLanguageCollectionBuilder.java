@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
-package work.lclpnet.translations.loader.language;
+package work.lclpnet.translations.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

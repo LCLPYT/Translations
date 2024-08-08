@@ -6,7 +6,7 @@
 
 package work.lclpnet.translations.network;
 
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
 import work.lclpnet.lclpnetwork.LCLPNetworkAPI;
 import work.lclpnet.lclpnetwork.api.APIAccess;
 import work.lclpnet.lclpnetwork.util.JsonBuilder;

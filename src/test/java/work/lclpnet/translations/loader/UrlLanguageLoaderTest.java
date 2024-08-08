@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
-package work.lclpnet.translations.loader.language;
+package work.lclpnet.translations.loader;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ class UrlLanguageLoaderTest {
 
         UrlLanguageLoader loader = new UrlLanguageLoader(urls, resourceDirectories, logger);
 
-        LanguageCollection languages = loader.loadLanguages().join();
+        LanguageCollection languages = loader.load().join();
         Set<String> keys = StreamSupport.stream(languages.keys().spliterator(), false).collect(Collectors.toSet());
 
         Set<String> expectedKeys = new HashSet<>();

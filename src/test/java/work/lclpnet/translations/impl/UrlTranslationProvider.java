@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
@@ -8,9 +8,9 @@ package work.lclpnet.translations.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.loader.TranslationProvider;
-import work.lclpnet.translations.loader.language.LanguageLoader;
-import work.lclpnet.translations.loader.language.UrlLanguageLoader;
+import work.lclpnet.translations.loader.UrlLanguageLoader;
 
 import java.net.URL;
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class UrlTranslationProvider implements TranslationProvider {
     private final Logger logger = LoggerFactory.getLogger(UrlTranslationProvider.class);
 
     @Override
-    public LanguageLoader create() {
+    public TranslationLoader create() {
         URL[] url = UrlLanguageLoader.getResourceLocations(this);
         List<String> resourceDirectories = Collections.singletonList("lang/");
 

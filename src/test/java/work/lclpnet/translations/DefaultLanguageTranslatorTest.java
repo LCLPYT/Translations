@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
@@ -7,9 +7,9 @@
 package work.lclpnet.translations;
 
 import org.junit.jupiter.api.Test;
-import work.lclpnet.translations.loader.translation.MultiTranslationLoader;
-import work.lclpnet.translations.loader.translation.SPITranslationLoader;
-import work.lclpnet.translations.loader.translation.TranslationLoader;
+import work.lclpnet.translations.loader.MultiTranslationLoader;
+import work.lclpnet.translations.loader.SPITranslationLoader;
+import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.model.Language;
 import work.lclpnet.translations.model.StaticLanguage;
 import work.lclpnet.translations.model.StaticLanguageCollection;
@@ -97,7 +97,11 @@ class DefaultLanguageTranslatorTest {
             return CompletableFuture.completedFuture(new StaticLanguageCollection(languages));
         };
 
-        Translator translator = DefaultLanguageTranslator.create(new MultiTranslationLoader(first, second)).join();
+        MultiTranslationLoader loader = new MultiTranslationLoader();
+        loader.addLoader(first);
+        loader.addLoader(second);
+
+        Translator translator = DefaultLanguageTranslator.create(loader).join();
 
         assertTrue(translator.hasTranslation("en_us", "test.first"));
 
