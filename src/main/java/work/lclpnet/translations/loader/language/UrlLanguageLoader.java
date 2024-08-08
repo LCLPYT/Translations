@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
@@ -7,11 +7,11 @@
 package work.lclpnet.translations.loader.language;
 
 import com.google.gson.JsonSyntaxException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.util.IOUtil;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -213,7 +213,7 @@ public class UrlLanguageLoader implements LanguageLoader {
         return false;
     }
 
-    @Nonnull
+    @NotNull
     public static URL[] getResourceLocations(Object o) {
         if (o == null) return new URL[0];
 

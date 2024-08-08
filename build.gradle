@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    id 'gradle-build-utils' version '1.5.3'
+    id 'gradle-build-utils' version '1.7.0'
 }
 
 Properties props = buildUtils.loadProperties('publish.properties')
@@ -37,10 +37,13 @@ java {
     registerFeature('network') {
         usingSourceSet(sourceSets.network)
     }
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
-    implementation 'com.google.code.findbugs:jsr305:3.0.0'
+    compileOnly 'org.jetbrains:annotations:24.1.0'
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.slf4j:slf4j-api:2.0.6'
     networkApi 'work.lclpnet:lclpnetwork-api:1.1.0'
@@ -58,6 +61,12 @@ configurations {
 test {
     useJUnitPlatform()
 }
+
+/*
+ * Copyright (c) 2024 LCLP.
+ *
+ * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
+ */
 
 // tweak jar tasks
 [jar, sourcesJar, networkJar].each {

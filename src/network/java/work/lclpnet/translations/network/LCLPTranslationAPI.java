@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
 package work.lclpnet.translations.network;
 
+import com.sun.istack.internal.Nullable;
 import work.lclpnet.lclpnetwork.LCLPNetworkAPI;
 import work.lclpnet.lclpnetwork.api.APIAccess;
 import work.lclpnet.lclpnetwork.util.JsonBuilder;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

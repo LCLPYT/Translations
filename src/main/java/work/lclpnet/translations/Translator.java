@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
 package work.lclpnet.translations;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 
 public interface Translator {
 
-    @Nonnull
+    @NotNull
     String translate(String locale, String key);
 
     /**
@@ -23,12 +24,12 @@ public interface Translator {
      */
     boolean hasTranslation(String locale, String key);
 
-    @Nonnull
+    @NotNull
     SimpleDateFormat getDateFormat(String locale);
 
     Iterable<String> getLanguages();
 
-    @Nonnull
+    @NotNull
     default String translate(String locale, String key, Object... substitutes) {
         return String.format(translate(locale, key), substitutes);
     }

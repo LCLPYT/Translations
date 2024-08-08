@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2023 LCLP.
+ * Copyright (c) 2024 LCLP.
  *
  * Licensed under the MIT License. For more information, consider the LICENSE file in the project's root directory.
  */
 
 package work.lclpnet.translations;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import work.lclpnet.translations.loader.translation.TranslationLoader;
 import work.lclpnet.translations.model.Language;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.model.StaticLanguageCollection;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class DefaultLanguageTranslator implements Translator {
     }
 
     @Override
-    public @Nonnull String translate(String locale, String key) {
+    public @NotNull String translate(String locale, String key) {
         Language language;
 
         synchronized (this) {
@@ -74,7 +74,7 @@ public class DefaultLanguageTranslator implements Translator {
     }
 
     @Override
-    @Nonnull
+    @NotNull
     public SimpleDateFormat getDateFormat(String locale) {
         synchronized (this) {
             if (dateFormats.containsKey(locale)) {
