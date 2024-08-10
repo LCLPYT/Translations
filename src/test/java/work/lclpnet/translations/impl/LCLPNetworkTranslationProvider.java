@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.loader.TranslationProvider;
-import work.lclpnet.translations.network.LCLPNetworkLanguageLoader;
+import work.lclpnet.translations.network.LCLPNetworkTranslationLoader;
 
 import java.util.Collections;
 
@@ -21,6 +21,6 @@ public class LCLPNetworkTranslationProvider implements TranslationProvider {
     @Override
     public TranslationLoader create() {
         // could also use org.slf4j.helpers.NOPLogger.NOP_LOGGER if log is unwanted
-        return new LCLPNetworkLanguageLoader(Collections.singletonList("mc_server"), null, logger);
+        return new LCLPNetworkTranslationLoader(Collections.singletonList("mc_server"), null, logger);
     }
 }

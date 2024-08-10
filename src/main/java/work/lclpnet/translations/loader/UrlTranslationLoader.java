@@ -30,22 +30,22 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class UrlLanguageLoader implements TranslationLoader {
+public class UrlTranslationLoader implements TranslationLoader {
 
     private final URL[] urls;
     private final Iterable<String> resourceDirectories;
     private final Executor executor;
     private final Logger logger;
 
-    public UrlLanguageLoader(URL url, Iterable<String> resourceDirectories, Logger logger) {
+    public UrlTranslationLoader(URL url, Iterable<String> resourceDirectories, Logger logger) {
         this(new URL[]{ url }, resourceDirectories, logger);
     }
 
-    public UrlLanguageLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
+    public UrlTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
         this(urls, resourceDirectories, logger, ForkJoinPool.commonPool());
     }
 
-    public UrlLanguageLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger, Executor executor) {
+    public UrlTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger, Executor executor) {
         this.urls = urls;
         this.resourceDirectories = resourceDirectories;
         this.logger = logger;
@@ -224,6 +224,15 @@ public class UrlLanguageLoader implements TranslationLoader {
 
         if (o instanceof URL) {
             return new URL[] { (URL) o };
+        }
+
+        if (o instanceof Path) {
+            try {
+                URL url = ((Path) o).toUri().toURL();
+                return new URL[] { url };
+            } catch (MalformedURLException e) {
+                return new URL[0];
+            }
         }
 
         if (o instanceof ClassLoader) {

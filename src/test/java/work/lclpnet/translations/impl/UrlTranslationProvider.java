@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.lclpnet.translations.loader.TranslationLoader;
 import work.lclpnet.translations.loader.TranslationProvider;
-import work.lclpnet.translations.loader.UrlLanguageLoader;
+import work.lclpnet.translations.loader.UrlTranslationLoader;
 
 import java.net.URL;
 import java.util.Collections;
@@ -22,9 +22,9 @@ public class UrlTranslationProvider implements TranslationProvider {
 
     @Override
     public TranslationLoader create() {
-        URL[] url = UrlLanguageLoader.getResourceLocations(this);
+        URL[] url = UrlTranslationLoader.getResourceLocations(this);
         List<String> resourceDirectories = Collections.singletonList("lang/");
 
-        return new UrlLanguageLoader(url, resourceDirectories, logger);
+        return new UrlTranslationLoader(url, resourceDirectories, logger);
     }
 }

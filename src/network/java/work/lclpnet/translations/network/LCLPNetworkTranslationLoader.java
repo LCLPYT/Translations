@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author LCLP
  */
-public class LCLPNetworkLanguageLoader implements TranslationLoader {
+public class LCLPNetworkTranslationLoader implements TranslationLoader {
 
     private final List<String> applications;
     private final List<String> languages;
@@ -36,7 +36,7 @@ public class LCLPNetworkLanguageLoader implements TranslationLoader {
      * @param languages    An optional list of languages to load. If null, every language will be loaded.
      * @param logger       A logger for information.
      */
-    public LCLPNetworkLanguageLoader(List<String> applications, @Nullable List<String> languages, Logger logger) {
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, Logger logger) {
         this(applications, languages, LCLPTranslationAPI.INSTANCE, logger);
     }
 
@@ -46,7 +46,7 @@ public class LCLPNetworkLanguageLoader implements TranslationLoader {
      * @param api          The api to be used.
      * @param logger       A logger for information.
      */
-    public LCLPNetworkLanguageLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, Logger logger) {
+    public LCLPNetworkTranslationLoader(List<String> applications, @Nullable List<String> languages, LCLPTranslationAPI api, Logger logger) {
         this.applications = Objects.requireNonNull(applications);
         this.languages = languages;
         this.api = Objects.requireNonNull(api);
