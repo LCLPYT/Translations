@@ -30,22 +30,27 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class UrlTranslationLoader implements TranslationLoader {
+/**
+ * A translation loader that loads all json translation files from an archive given by a URL.
+ * Multiple URLs are supported for use with e.g. the Java classpath; see {@link UrlArchiveJsonTranslationLoader#getResourceLocations(Object)}.
+ * If the URL is of the file:// protocol and points to a directory, that directory is used as archive instead.
+ */
+public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
 
     private final URL[] urls;
     private final Iterable<String> resourceDirectories;
     private final Executor executor;
     private final Logger logger;
 
-    public UrlTranslationLoader(URL url, Iterable<String> resourceDirectories, Logger logger) {
+    public UrlArchiveJsonTranslationLoader(URL url, Iterable<String> resourceDirectories, Logger logger) {
         this(new URL[]{ url }, resourceDirectories, logger);
     }
 
-    public UrlTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
+    public UrlArchiveJsonTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
         this(urls, resourceDirectories, logger, ForkJoinPool.commonPool());
     }
 
-    public UrlTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger, Executor executor) {
+    public UrlArchiveJsonTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger, Executor executor) {
         this.urls = urls;
         this.resourceDirectories = resourceDirectories;
         this.logger = logger;
@@ -54,16 +59,10 @@ public class UrlTranslationLoader implements TranslationLoader {
 
     @Override
     public CompletableFuture<? extends LanguageCollection> load() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return loadSync();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load languages", e);
-            }
-        }, executor);
+        return CompletableFuture.supplyAsync(this::loadSync, executor);
     }
 
-    private LanguageCollection loadSync() throws IOException {
+    private LanguageCollection loadSync() {
         final JsonLanguageCollectionBuilder builder = new JsonLanguageCollectionBuilder(logger);
 
         for (URL url : urls) {
@@ -214,6 +213,19 @@ public class UrlTranslationLoader implements TranslationLoader {
         return false;
     }
 
+    /**
+     * Creates an array of URLs for a given object.
+     * This method supports the following types:
+     * <ul>
+     *     <li>{@link URL} will return as singleton array</li>
+     *     <li>{@link URL}[] will simply be returned as is</li>
+     *     <li>{@link Path} will be converted to a {@link URL}</li>
+     *     <li>{@link ClassLoader} will be return the classpath URLs, if an instance of {@link URLClassLoader} or else an empty array.</li>
+     *     <li>For all other objects, the classpath of the owning class loader is returned, concatenated with the {@link CodeSource} location of the object's class.</li>
+     * </ul>
+     * @param o The source to evaluate.
+     * @return An array of {@link URL}s that is inferred from the given source.
+     */
     @NotNull
     public static URL[] getResourceLocations(Object o) {
         if (o == null) return new URL[0];
