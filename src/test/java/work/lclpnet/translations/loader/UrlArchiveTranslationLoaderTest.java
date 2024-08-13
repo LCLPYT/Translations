@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UrlArchiveJsonTranslationLoaderTest {
+class UrlArchiveTranslationLoaderTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
 
@@ -82,13 +82,13 @@ class UrlArchiveJsonTranslationLoaderTest {
         Path path = Paths.get("src", "test", "resources", "test.jar");
         assertTrue(Files.isRegularFile(path));
 
-        @NotNull URL[] urls = UrlArchiveJsonTranslationLoader.getResourceLocations(path);
+        @NotNull URL[] urls = UrlArchiveTranslationLoader.getResourceLocations(path);
 
         testUrls(urls, "jarlang/");
     }
 
     private static void test(Object ref, String dir) {
-        URL[] urls = UrlArchiveJsonTranslationLoader.getResourceLocations(ref);
+        URL[] urls = UrlArchiveTranslationLoader.getResourceLocations(ref);
 
         testUrls(urls, dir);
     }
@@ -96,7 +96,7 @@ class UrlArchiveJsonTranslationLoaderTest {
     private static void testUrls(URL[] urls, String dir ) {
         List<String> resourceDirectories = Collections.singletonList(dir);
 
-        UrlArchiveJsonTranslationLoader loader = new UrlArchiveJsonTranslationLoader(urls, resourceDirectories, logger);
+        UrlArchiveTranslationLoader loader = UrlArchiveTranslationLoader.ofJson(urls, resourceDirectories, logger);
 
         LanguageCollection languages = loader.load().join();
         Set<String> keys = StreamSupport.stream(languages.keys().spliterator(), false).collect(Collectors.toSet());

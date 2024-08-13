@@ -15,18 +15,28 @@ import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.model.MutableLanguage;
 import work.lclpnet.translations.model.StaticLanguageCollection;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsonLanguageCollectionBuilder {
+public class JsonTranslationParser implements TranslationParser {
 
     private final Gson gson = new Gson();
     private final Map<String, MutableLanguage> languages = Collections.synchronizedMap(new HashMap<>());
     private final Logger logger;
 
-    public JsonLanguageCollectionBuilder(Logger logger) {
+    public JsonTranslationParser(Logger logger) {
         this.logger = logger;
+    }
+
+    @Override
+    public void parse(InputStream input, String language) throws IOException, JsonSyntaxException {
+        String json = IOUtil.readString(input, StandardCharsets.UTF_8);
+
+        parse(json, language);
     }
 
     public void parse(String json, String languageName) throws JsonSyntaxException {
@@ -54,6 +64,7 @@ public class JsonLanguageCollectionBuilder {
         }
     }
 
+    @Override
     public LanguageCollection build() {
         return new StaticLanguageCollection(languages);
     }

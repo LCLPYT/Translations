@@ -6,18 +6,17 @@
 
 package work.lclpnet.translations.loader;
 
-import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import work.lclpnet.translations.model.LanguageCollection;
 import work.lclpnet.translations.util.IOUtil;
-import work.lclpnet.translations.util.JsonLanguageCollectionBuilder;
+import work.lclpnet.translations.util.JsonTranslationParser;
+import work.lclpnet.translations.util.TranslationParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,33 +25,39 @@ import java.security.ProtectionDomain;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
  * A translation loader that loads all json translation files from an archive given by a URL.
- * Multiple URLs are supported for use with e.g. the Java classpath; see {@link UrlArchiveJsonTranslationLoader#getResourceLocations(Object)}.
+ * Multiple URLs are supported for use with e.g. the Java classpath; see {@link UrlArchiveTranslationLoader#getResourceLocations(Object)}.
  * If the URL is of the file:// protocol and points to a directory, that directory is used as archive instead.
  */
-public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
+public class UrlArchiveTranslationLoader implements TranslationLoader {
 
     private final URL[] urls;
     private final Iterable<String> resourceDirectories;
-    private final Executor executor;
     private final Logger logger;
+    private final Executor executor;
+    private final Predicate<String> translationFilePredicate;
+    private final Supplier<TranslationParser> parserFactory;
 
-    public UrlArchiveJsonTranslationLoader(URL url, Iterable<String> resourceDirectories, Logger logger) {
-        this(new URL[]{ url }, resourceDirectories, logger);
+    public UrlArchiveTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger,
+                                       Supplier<TranslationParser> parserFactory,
+                                       Predicate<String> translationFilePredicate) {
+        this(urls, resourceDirectories, ForkJoinPool.commonPool(), logger, translationFilePredicate, parserFactory);
     }
 
-    public UrlArchiveJsonTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
-        this(urls, resourceDirectories, logger, ForkJoinPool.commonPool());
-    }
-
-    public UrlArchiveJsonTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Logger logger, Executor executor) {
+    public UrlArchiveTranslationLoader(URL[] urls, Iterable<String> resourceDirectories, Executor executor,
+                                       Logger logger, Predicate<String> translationFilePredicate,
+                                       Supplier<TranslationParser> parserFactory) {
         this.urls = urls;
         this.resourceDirectories = resourceDirectories;
+        this.translationFilePredicate = translationFilePredicate;
+        this.parserFactory = parserFactory;
         this.logger = logger;
         this.executor = executor;
     }
@@ -63,20 +68,20 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
     }
 
     private LanguageCollection loadSync() {
-        final JsonLanguageCollectionBuilder builder = new JsonLanguageCollectionBuilder(logger);
+        final TranslationParser parser = parserFactory.get();
 
         for (URL url : urls) {
             try {
-                parseUrl(url, builder);
+                parseUrl(url, parser);
             } catch (IOException e) {
                 logger.error("Failed to parse resource url {}", url, e);
             }
         }
 
-        return builder.build();
+        return parser.build();
     }
 
-    private void parseUrl(URL url, JsonLanguageCollectionBuilder builder) throws IOException {
+    private void parseUrl(URL url, TranslationParser parser) throws IOException {
         String path = url.getPath();
         if (path == null) return;
 
@@ -84,7 +89,7 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
         boolean local = "file".equals(protocol);
 
         if (local && path.endsWith("/")) {
-            parseDirectory(url, builder);
+            parseDirectory(url, parser);
             return;
         }
 
@@ -99,12 +104,12 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
             }
 
             if (localPath != null && Files.isDirectory(localPath)) {
-                parseDirectory(url, builder);
+                parseDirectory(url, parser);
                 return;
             }
         }
 
-        parseJar(adjustJarUrlIfNeeded(url), builder);
+        parseJar(adjustJarUrlIfNeeded(url), parser);
     }
 
     private URL adjustJarUrlIfNeeded(URL url) {
@@ -133,7 +138,7 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
         }
     }
 
-    private void parseJar(URL url, JsonLanguageCollectionBuilder builder) throws IOException {
+    private void parseJar(URL url, TranslationParser parser) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(url.openStream())) {
             ZipEntry entry;
 
@@ -144,17 +149,15 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
                 logger.debug("Reading zipped translation file {} ...", name);
 
                 try {
-                    String json = IOUtil.readString(zip, StandardCharsets.UTF_8);
-
-                    builder.parse(json, IOUtil.basename(name));
-                } catch (IOException | JsonSyntaxException e) {
-                    logger.error("Failed to read translation file {}", name, e);
+                    parser.parse(zip, IOUtil.basename(name));
+                } catch (Exception e) {
+                    logger.error("Failed to parse translation file {}", name, e);
                 }
             }
         }
     }
 
-    private void parseDirectory(URL url, JsonLanguageCollectionBuilder builder) throws IOException {
+    private void parseDirectory(URL url, TranslationParser parser) throws IOException {
         if (!"file".equals(url.getProtocol())) {
             throw new IllegalStateException(String.format("Cannot read directory for protocol %s", url.getProtocol()));
         }
@@ -180,28 +183,20 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
                         return isTranslationFile(normalized);
                     })
                     .sequential()
-                    .forEach(path -> readFile(path, builder));
+                    .forEach(path -> readFile(path, parser));
         }
     }
 
-    private void readFile(Path path, JsonLanguageCollectionBuilder builder) {
-        final String json;
-
+    private void readFile(Path path, TranslationParser parser) {
         try (InputStream in = Files.newInputStream(path)) {
-            json = IOUtil.readString(in, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.error("Failed to read translation file {}", path, e);
-            return;
-        }
-
-        try {
-            builder.parse(json, IOUtil.basename(path.getFileName().toString()));
-        } catch (JsonSyntaxException e) {
-            logger.error("Invalid json file {}", path, e);
+            parser.parse(in, IOUtil.basename(path.getFileName().toString()));
+        } catch (Exception e) {
+            logger.error("Failed to parse translation file {}", path, e);
         }
     }
 
     protected boolean isTranslationFile(String fileName) {
+        if (!translationFilePredicate.test(fileName)) return false;
         if (!fileName.endsWith(".json")) return false;
 
         for (String directory : resourceDirectories) {
@@ -292,5 +287,11 @@ public class UrlArchiveJsonTranslationLoader implements TranslationLoader {
 
         URLClassLoader cl = (URLClassLoader) loader;
         return cl.getURLs();
+    }
+
+    public static UrlArchiveTranslationLoader ofJson(URL[] urls, Iterable<String> resourceDirectories, Logger logger) {
+        return new UrlArchiveTranslationLoader(urls, resourceDirectories, logger,
+                () -> new JsonTranslationParser(logger),
+                file -> file.endsWith(".json"));
     }
 }
